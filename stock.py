@@ -8,8 +8,20 @@ class Stock():
         self.venue = venue
         self.account = account
 
-    def get_quote(self):
-        pass
+    def book(self):
+        url = (self._url
+               + 'venues/{}/'.format(self.venue)
+               + 'stocks/{}'.format(self.ticker))
+        r = requests.get(url, headers=auth_header)
+        r_dict = r.json()
+        return (r_dict['bids'], r_dict['asks'], r_dict['ts'])
+
+    def quote(self):
+        url = (self._url
+               + 'venues/{}/'.format(self.venue)
+               + 'stocks/{}/quote'.format(self.ticker))
+        r = requests.get(url, headers=auth_header)
+        return r.json()
 
     def buy(self, quantity, account=None, order_type='market', price=0):
         if account is None and self.account is not None:
@@ -39,6 +51,22 @@ class Stock():
         return self.order(account, self.venue, self.ticker, price,
                           quantity, 'sell', order_type)
 
+    def order_status(self, order_id):
+        url = (self._url
+               + 'venues/{}/'.format(self.venue)
+               + 'stocks/{}/'.format(self.ticker)
+               + 'orders/{}'.format(order_id))
+        r = requests.get(url, headers=auth_header)
+        return (r.json()['open'], r.json())
+
+    def cancel(self, order_id):
+        url = (self._url
+               + 'venues/{}/'.format(self.venue)
+               + 'stocks/{}/'.format(self.ticker)
+               + 'orders/{}'.format(order_id))
+        r = requests.delete(url, headers=auth_header)
+        return (r.json()['open'], r.json())
+
     def order(self, account, venue, stock, price, qty, direction, order_type):
         """Place an order by specifying all aspects"""
         url = self._url + '/venues/{}/stocks/{}/orders'.format(venue, stock)
@@ -50,4 +78,4 @@ class Stock():
                  'direction' : direction,
                  'order_type' : order_type}
         r = requests.post(url, data=order, headers=auth_header)
-        return r.json()
+        return (r.json()['id'], r.json())
