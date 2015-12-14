@@ -21,7 +21,11 @@ class Stock():
                + 'venues/{}/'.format(self.venue)
                + 'stocks/{}/quote'.format(self.ticker))
         r = requests.get(url, headers=auth_header)
-        return r.json()
+        r_dict = r.json()
+        if r_dict['ok']:
+            return (r_dict['ask'], r_dict)
+        else:
+            return (None, r_dict)
 
     def buy(self, quantity, account=None, order_type='market', price=0):
         if account is None and self.account is not None:
@@ -78,4 +82,8 @@ class Stock():
                  'direction' : direction,
                  'order_type' : order_type}
         r = requests.post(url, data=order, headers=auth_header)
-        return (r.json()['id'], r.json())
+        r_dict = r.json()
+        if r_dict['ok']:
+            return (r_dict['id'], r_dict)
+        else:
+            return (None, r_dict)
