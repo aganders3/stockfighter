@@ -1,4 +1,5 @@
 import requests
+import json
 from .api_key import auth_header
 
 class Stock():
@@ -22,9 +23,9 @@ class Stock():
                + 'stocks/{}/quote'.format(self.ticker))
         r = requests.get(url, headers=auth_header)
         r_dict = r.json()
-        if r_dict['ok']:
+        try:
             return (r_dict['ask'], r_dict)
-        else:
+        except KeyError:
             return (None, r_dict)
 
     def buy(self, quantity, account=None, order_type='market', price=0):
@@ -80,8 +81,9 @@ class Stock():
                  'price' : price,
                  'qty' : qty,
                  'direction' : direction,
-                 'order_type' : order_type}
-        r = requests.post(url, data=order, headers=auth_header)
+                 'orderType' : order_type}
+        print(order)
+        r = requests.post(url, json=order, headers=auth_header)
         r_dict = r.json()
         if r_dict['ok']:
             return (r_dict['id'], r_dict)
