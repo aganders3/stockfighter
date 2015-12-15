@@ -42,7 +42,7 @@ class Stock():
         return self.order(account, self.venue, self.ticker, price,
                           quantity, 'buy', order_type)
 
-    def sell(self, quanityt, account=None, order_type='market', price=0):
+    def sell(self, quantity, account=None, order_type='market', price=0):
         if account is None and self.account is not None:
             account = self.account
         elif account is None and self.account is None:
@@ -56,13 +56,24 @@ class Stock():
         return self.order(account, self.venue, self.ticker, price,
                           quantity, 'sell', order_type)
 
-    def order_status(self, order_id):
-        url = (self._url
-               + 'venues/{}/'.format(self.venue)
-               + 'stocks/{}/'.format(self.ticker)
-               + 'orders/{}'.format(order_id))
+    def order_status(self, order_id=None):
+        url = self._url + 'venues/{}'.format(self.venue)
+        if not order_id and self.account:
+            url += '/accounts/{}/'.format(self.account)
+        url += 'stocks/{}/'.format(self.ticker)
+        url += 'orders'
+
+        if order_id:
+            url += '/{}'.format(order_id)
+
         r = requests.get(url, headers=auth_header)
-        return (r.json()['open'], r.json())
+        r_dict = r.json()
+
+        if order_id:
+            return (r_dict['open'], r_dict)
+        else:
+            statuses = [order['open'] for order in r_dict['orders']]
+            return (statuses, r_dict)
 
     def cancel(self, order_id):
         url = (self._url
@@ -82,7 +93,6 @@ class Stock():
                  'qty' : qty,
                  'direction' : direction,
                  'orderType' : order_type}
-        print(order)
         r = requests.post(url, json=order, headers=auth_header)
         r_dict = r.json()
         if r_dict['ok']:
