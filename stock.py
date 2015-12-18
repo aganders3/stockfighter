@@ -99,3 +99,31 @@ class Stock():
             return (r_dict['id'], r_dict)
         else:
             return (None, r_dict)
+
+    async def tickertape(self, account=-1):
+        import websockets
+        url = 'wss://api.stockfighter.io/ob/api/ws'
+
+        if account == -1:
+            account = self.account
+        if account:
+            url += '/{}'.format(account)
+
+        url += '/venues/{}/tickertape/stocks/{}'.format(self.venue,
+                                                        self.ticker)
+
+        return await websockets.client.connect(url)
+
+    async def fills(self, account=-1):
+        import websockets
+        url = 'wss://api.stockfighter.io/ob/api/ws'
+
+        if account == -1:
+            account = self.account
+        if account:
+            url += '/{}'.format(account)
+
+        url += '/venues/{}/executions/stocks/{}'.format(self.venue,
+                                                        self.ticker)
+
+        return await websockets.client.connect(url)

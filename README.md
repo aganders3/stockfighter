@@ -2,7 +2,10 @@ These are just some Python functions I am using to complete the trading levels
 on stockfighter.io.
 
 I am using Python 3.5 in my environment. You will also need to install the
-`requests` library if you'd like to use these functions.
+`requests` library if you'd like to use these functions. If you want to use the
+websockets, you will need the
+[`websockets`](https://websockets.readthedocs.org/en/stable/index.html)
+library.
 
 There is a missing file, such that I don't expose my API key. The file is
 called (fittingly) `api_key.py`, and it should look like this inside (insert
